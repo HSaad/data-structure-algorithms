@@ -12,7 +12,7 @@ class Node
 		parent = @parent.value if @parent != nil
 		left_child = @left_child.value if @left_child != nil
 		right_child = @right_child.value if @right_child != nil
-		string = "value: #{@value}, parent: #{parent}, left_child: #{left_child},right_child:#{right_child}"
+		string = "value: #{@value}, parent: #{parent}, left_child: #{left_child}, right_child:#{right_child}"
 		return string
 	end
 end
@@ -69,12 +69,24 @@ class Tree
 
 	def depth_first_search(value)
 		stack = []
+		stack.push(@root)
 
+		while !stack.empty?
+			node = stack.pop
+			return node if node.value == value
+			stack.push(node.left_child) if node.left_child != nil
+			stack.push(node.right_child) if node.right_child != nil
+		end
 		return nil
 	end
 
-	def dfs_rec(value, node)
-
+	def dfs_rec(value, node=@root)
+		if node.value == value
+			return node
+		end
+		left = dfs_rec(value, node.left_child) if node.left_child != nil
+		right = dfs_rec(value, node.right_child) if node.right_child != nil
+		left or right
 	end
 
 	def to_s
@@ -94,5 +106,12 @@ tree = Tree.new
 
 tree.build_tree([1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324])
 puts tree.to_s
+
 node = tree.breadth_first_search(7)
+puts node.to_s
+
+node = tree.depth_first_search(8)
+puts node.to_s
+
+node = tree.dfs_rec(4)
 puts node.to_s
