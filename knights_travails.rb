@@ -1,29 +1,29 @@
 class Node
-	attr_accessor :value, :parent, :left_child, :right_child
+	attr_accessor :value, :parent
 
-	def initialize(value=nil, parent=nil, left_child=nil, right_child=nil)
+	def initialize(value=nil, parent=nil)
 		@value = value
 		@parent = parent
-		@children = []
 	end
 
 	def to_s
 		parent = @parent.value if @parent != nil
-		
-		string = "value: #{@value}, parent: #{parent}, children: #{children.inspect}"
+		string = "value: #{@value}, parent: #{parent}"
 		return string
 	end
 end
 
 class Game
-	attr_accessor :board_array
+	attr_accessor :board_array, :visited, :unvisited
 
 	def initialize
 		@board_array = []
-		board
+		@visited = []
+		@unvisited = []
+		draw_board
 	end
 
-	def board
+	def draw_board
 		8.times do |i|
 			8.times do |j|
 				@board_array.push([i,j])
@@ -41,21 +41,38 @@ class Game
 end
 
 class Knight
-	attr_accessor :position, :game, :root
+	attr_accessor :game
 
-	def initialize(position=nil, game=nil)
-		@position = position
+	def initialize(game=nil)
 		@game = game
 	end
 
-	def possible_moves()
-		tree = {}
-		array = @game.board_array
-
-		array.each do |position|
-			tree[position] = possible_positions(position)
+	#Using breadth first search (unvisited acts as queue)
+	def possible_moves(start_node, destination)
+	
+		if start_node.value == destination
+			return start_node
+		else
+			game.visited << start_node
+			game.unvisited = game.unvisited + (set_parent(start_node,  possible_positions(start_node.value)) - game.visited)
+			game.unvisited.each do |position_node|
+				if position_node.value == destination
+					return position_node
+				end
+				game.visited << position_node
+			end
+			possible_moves(game.unvisited.shift,destination) if game.unvisited.first != nil 
 		end
-		return tree
+	end
+
+	#link possible positions with their starting(parent) position/node
+	def set_parent(node, array)
+		node_array = []
+		array.each do |position|
+			child_node = Node.new(position, node)
+			node_array << child_node
+		end
+		return node_array
 	end
 
 	def possible_positions(position)
@@ -71,17 +88,31 @@ class Knight
 		return array_positons
 	end
 
-	def knight_moves
-
+	#turn node into path by adding parent to path array
+	def knight_moves(start, destination)
+		node = possible_moves(Node.new(start), destination)
+		path = []
+		while node.parent != nil
+			path.push(node.value)
+			node = node.parent
+		end
+		path.push(start)
+		print_path(path.reverse)
 	end
 
-	def to_s
-		return position.to_s
+	def print_path(array)
+		puts "You made it in #{array.length - 1} moves! Heres your path: "
+		array.each do |position|
+			puts position.inspect
+		end
 	end
+
 end
 
 game = Game.new
-#puts game.to_s
 
-knight = Knight.new([1,2],game)
-puts knight.possible_moves
+k = Knight.new(game)
+k.knight_moves([0,0],[1,2])
+k.knight_moves([0,0],[3,3])
+k.knight_moves([3,3],[0,0])
+k.knight_moves([3,3], [4,3])
