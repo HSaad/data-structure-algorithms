@@ -9,7 +9,11 @@ class Node
 	end
 
 	def to_s
-		return @value
+		parent = @parent.value if @parent != nil
+		left_child = @left_child.value if @left_child != nil
+		right_child = @right_child.value if @right_child != nil
+		string = "value: #{@value}, parent: #{parent}, left_child: #{left_child},right_child:#{right_child}"
+		return string
 	end
 end
 
@@ -35,18 +39,42 @@ class Tree
 	def insert(node, value, pos, parent)
 		if node == nil
 			child_node = Node.new(value)
+			child_node.parent = parent
 			@array.push(child_node)
 			if pos == "left"
 				parent.left_child = child_node 
 			else
 				parent.right_child = child_node
 			end
-			child_node.parent = node
 		elsif node.value <= value
 			insert(node.right_child, value, "right", node)
 		elsif node.value > value
 			insert(node.left_child, value, "left",node)
 		end
+	end
+
+	def breadth_first_search(value)
+		queue = []
+		queue.push(@root)
+
+		while !queue.empty?
+			node = queue.shift
+			return node if node.value == value
+			queue.push(node.left_child) if node.left_child != nil
+			queue.push(node.right_child) if node.right_child != nil
+		end
+
+		return nil
+	end
+
+	def depth_first_search(value)
+		stack = []
+
+		return nil
+	end
+
+	def dfs_rec(value, node)
+
 	end
 
 	def to_s
@@ -64,5 +92,7 @@ end
 
 tree = Tree.new
 
-tree.build_tree([1,2,3,4,5,6,7,8,9])
+tree.build_tree([1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324])
 puts tree.to_s
+node = tree.breadth_first_search(7)
+puts node.to_s
