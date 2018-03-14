@@ -77,6 +77,7 @@ class Tree
 			stack.push(node.left_child) if node.left_child != nil
 			stack.push(node.right_child) if node.right_child != nil
 		end
+
 		return nil
 	end
 
